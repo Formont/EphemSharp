@@ -35,7 +35,7 @@ This project is created for **learning, experimentation, and personal projects**
 ---
 ### Observing a star 
 ```C#
-var obs = new Observer(47.503, 41.163);
+var obs = new Observer(55.75583, 37.6173); //Moscow
 Star star = new Star(new Angle(AngleType.Hours, 22, 57, 38.35), new Angle(AngleType.Degrees, -29, 37, 35.3));//Fomalhaut star
 var fomalhaut = obs.Observe(star);
 Console.WriteLine(fomalhaut.Altitude);
