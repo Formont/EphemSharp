@@ -56,6 +56,20 @@ Console.WriteLine(mars.Declination);
 Console.WriteLine(mars.Magnitude);
 Console.WriteLine(mars.AngularSize);
 ```
+### Angular distance 
+```C#
+for (int i = 0; i <= 365 * 100; i++)
+{
+    var newdate = DateTime.UtcNow.AddDays(i);
+    Planet ven = Planet.GetPlanet(Planets.Venus, newdate);
+    Planet mer = Planet.GetPlanet(Planets.Mercury, newdate);
+    var dst = Calculator.AngularDistance(ven, mer); 
+    if ((double)dst <= 0.5)
+    {
+        Console.WriteLine($"{dst} {newdate}");
+    }
+}
+```
 ---
 ### ⚠️ Disclaimer
 
