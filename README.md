@@ -1,24 +1,33 @@
 # EphemSharp
+**EphemSharp** is a **hobbyist, non-professional astronomy library for C#**.  
+It allows you to compute basic ephemerides of stars and planets, as well as their apparent position in the sky for a given observer on Earth.
 
-EphemSharp — библиотека на C# для вычисления эфемерид планет:
-- гелиоцентрические координаты (VSOP87)
-- геоцентрические координаты
-- RA / Dec
-- фазовый угол
-- угловой размер
-- видимая звёздная величина
+This project is created for **learning, experimentation, and personal projects**.
 
-## Coordinate Systems
+---
 
-- VSOP87 XYZ — гелиоцентрические прямоугольные координаты (AU)
-- Эклиптическая система (J2000)
-- Экваториальная система (J2000)
-- RA в часах
-- Dec в градусах
+## ✨ Features
 
-## Time
+### 🌟 Stars
+- Right Ascension (RA) and Declination (Dec)
+- Conversion to Altitude / Azimuth
+- Constellation determination (IAU boundaries)
 
-Все вычисления используют:
-- Julian Date (JD)
-- Эпоха J2000.0
-- Формула: t = (JD - 2451545.0) / 365250
+### 🪐 Planets
+- Heliocentric rectangular coordinates (VSOP87)
+- Geocentric coordinates
+- Right Ascension and Declination
+- Angular size
+- Phase angle and illumination
+- Apparent visual magnitude
+
+### 🌍 Observer
+- Altitude and azimuth for any Earth location
+- Hour angle
+- Local sidereal time
+
+### ⏱ Time
+- Julian Date support
+- UTC-based calculations
+
+---
