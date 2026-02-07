@@ -12,6 +12,7 @@ This project is created for **learning, experimentation, and personal projects**
 - Right Ascension (RA) and Declination (Dec)
 - Conversion to Altitude / Azimuth
 - Constellation determination (IAU boundaries)
+- Supports stars from the **Hipparcos catalog (HIP)**.
 
 ### 🪐 Planets
 - Heliocentric rectangular coordinates (VSOP87)
@@ -75,16 +76,16 @@ for (int i = 0; i <= 365.25 * 100; i++)
 
 **EphemSharp is an amateur project.**
 
-* ❌ Not scientifically validated
+- ❌ Not scientifically validated
 
-* ❌ Not suitable for navigation, research, or professional astronomy
+- ❌ Not suitable for navigation, research, or professional astronomy
 
-* ❌ No guarantee of precision or long-term accuracy
+- ❌ No guarantee of precision or long-term accuracy
 
 All calculations are provided **“as is”**.
 Use this library **at your own risk**.
 
 ### 📚 References
-* [VSOP87 planetary theory](https://www.neoprogrammics.com/vsop87/source_code_generator_tool/)
-* [Skyfield (Python) — used as conceptual inspiration](https://rhodesmill.org/skyfield/)
-* IAU constellation boundaries
+- [VSOP87 planetary theory](https://www.neoprogrammics.com/vsop87/source_code_generator_tool/)
+- [Skyfield (Python) — used as conceptual inspiration](https://rhodesmill.org/skyfield/)
+- IAU constellation boundaries
