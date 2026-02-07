@@ -58,7 +58,7 @@ Console.WriteLine(mars.AngularSize);
 ```
 ### Angular distance 
 ```C#
-for (int i = 0; i <= 365 * 100; i++)
+for (int i = 0; i <= 365.25 * 100; i++)
 {
     var newdate = DateTime.UtcNow.AddDays(i);
     Planet ven = Planet.GetPlanet(Planets.Venus, newdate);
