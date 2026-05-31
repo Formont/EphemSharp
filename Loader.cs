@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Net;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace EphemSharp
 {
@@ -14,10 +10,15 @@ namespace EphemSharp
         {
             if (!File.Exists(filename))
             {
-                using (WebClient client = new WebClient())
+                Console.WriteLine("Downloading...");
+                using (var client = new HttpClient())
                 {
-                    Console.WriteLine("Downloading...");
-                    client.DownloadFile(url, filename);
+                    var response = client.GetAsync(url).GetAwaiter().GetResult();
+                    response.EnsureSuccessStatusCode();
+                    using (var fs = new FileStream(filename, FileMode.CreateNew))
+                    {
+                        response.Content.CopyToAsync(fs).GetAwaiter().GetResult();
+                    }
                 }
             }
         }

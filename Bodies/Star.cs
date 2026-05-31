@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using EphemSharp.Enums;
 using EphemSharp.Units;
@@ -16,8 +16,16 @@ namespace EphemSharp.Bodies
             set
             {
                 parallaxMas = value;
-                double D = 1 / Math.Tan(ParallaxMas / 1000) * 206000;
-                Distance = new Distance(D);
+                if (parallaxMas <= 0)
+                {
+                    Distance = new Distance(au: double.PositiveInfinity);
+                }
+                else
+                {
+                    double radians = (parallaxMas / 1000.0) / 3600.0 * Math.PI / 180.0;
+                    double D = 1.0 / Math.Tan(radians);
+                    Distance = new Distance(D);
+                }
             }
         }
 
@@ -49,11 +57,13 @@ namespace EphemSharp.Bodies
             RightAscension = ra;
             Declination = dec;
             Magnitude = 0;
-            if (ra.Degrees < 0 || ra.Degrees >= 24)
-                throw new ArgumentOutOfRangeException(nameof(ra.Degrees));
+            double raHours = ra.GetHours();
+            if (raHours < 0 || raHours >= 24)
+                throw new ArgumentOutOfRangeException(nameof(ra), "Right Ascension must be between 0 and 24 hours.");
 
-            if (dec.Degrees < -90 || dec.Degrees > 90)
-                throw new ArgumentOutOfRangeException(nameof(dec.Degrees));
+            double decDegrees = dec.GetDegrees();
+            if (decDegrees < -90 || decDegrees > 90)
+                throw new ArgumentOutOfRangeException(nameof(dec), "Declination must be between -90 and 90 degrees.");
         }
 
         public static Star FromHIP(int number, Dictionary<string, Star> HIPstars)

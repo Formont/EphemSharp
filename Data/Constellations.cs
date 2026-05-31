@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Collections.Generic;
 using System;
 using System.Text;
@@ -9,98 +9,127 @@ namespace EphemSharp.Data
     {
         static string GetFullName(string shortname)
         {
+            if (string.IsNullOrEmpty(shortname))
+            {
+                return "Unknown";
+            }
+
             Dictionary<string, string> constellations = new Dictionary<string, string>
-        {
-            { "AQL", "Aquila" },
-            { "AND", "Andromeda" },
-            { "SCL", "Sculptor" },
-            { "ARA", "Ara" },
-            { "LIB", "Libra" },
-            { "CET", "Cetus" },
-            { "ARI", "Aries" },
-            { "PYX", "Pyxis" },
-            { "BOO", "Bootes" },
-            { "CAE", "Caelum" },
-            { "CHA", "Chamaeleon" },
-            { "CNC", "Cancer" },
-            { "CAP", "Capricornus" },
-            { "CAR", "Carina" },
-            { "CAS", "Cassiopeia" },
-            { "CEN", "Centaurus" },
-            { "CEP", "Cepheus" },
-            { "COM", "Coma Berenices" },
-            { "CVN", "Canes Venatici" },
-            { "AUR", "Auriga" },
-            { "COL", "Columba" },
-            { "CIR", "Circinus" },
-            { "CRT", "Crater" },
-            { "CRA", "Corona Australis" },
-            { "CRB", "Corona Borealis" },
-            { "CRV", "Corvus" },
-            { "CRU", "Crux" },
-            { "CYG", "Cygnus" },
-            { "DEL", "Delphinus" },
-            { "DOR", "Dorado" },
-            { "DRA", "Draco" },
-            { "NOR", "Norma" },
-            { "ERI", "Eridanus" },
-            { "SGE", "Sagitta" },
-            { "FOR", "Fornax" },
-            { "GEM", "Gemini" },
-            { "CAM", "Camelopardalis" },
-            { "CMA", "Canis Major" },
-            { "UMA", "Ursa Major" },
-            { "GRU", "Grus" },
-            { "HER", "Hercules" },
-            { "HOR", "Horologium" },
-            { "HYA", "Hydra" },
-            { "HYI", "Hydrus" },
-            { "IND", "Indus" },
-            { "LAC", "Lacerta" },
-            { "MON", "Monoceros" },
-            { "LEP", "Lepus" },
-            { "LEO", "Leo" },
-            { "LUP", "Lupus" },
-            { "LYN", "Lynx" },
-            { "LYR", "Lyra" },
-            { "ANT", "Antlia" },
-            { "MIC", "Microscopium" },
-            { "MUS", "Musca" },
-            { "OCT", "Octans" },
-            { "APS", "Apus" },
-            { "OPH", "Ophiuchus" },
-            { "ORI", "Orion" },
-            { "PAV", "Pavo" },
-            { "PEG", "Pegasus" },
-            { "PIC", "Pictor" },
-            { "PER", "Perseus" },
-            { "EQU", "Equuleus" },
-            { "CMI", "Canis Minor" },
-            { "LMI", "Leo Minor" },
-            { "VUL", "Vulpecula" },
-            { "UMI", "Ursa Minor" },
-            { "PHE", "Phoenix" },
-            { "PSC", "Pisces" },
-            { "PSA", "Piscis Austrinus" },
-            { "VOL", "Volans" },
-            { "PUP", "Puppis" },
-            { "RET", "Reticulum" },
-            { "SGR", "Sagittarius" },
-            { "SCO", "Scorpius" },
-            { "SCT", "Scutum" },
-            { "SER", "Serpens" },
-            { "SEX", "Sextans" },
-            { "MEN", "Mensa" },
-            { "TAU", "Taurus" },
-            { "TEL", "Telescopium" },
-            { "TUC", "Tucana" },
-            { "TRI", "Triangulum" },
-            { "TRA", "Triangulum Australe" },
-            { "AQR", "Aquarius" },
-            { "VIR", "Virgo" },
-            { "VEL", "Vela" }
-        };
-            return constellations[shortname];
+            {
+                { "AQL", "Aquila" },
+                { "AND", "Andromeda" },
+                { "SCL", "Sculptor" },
+                { "ARA", "Ara" },
+                { "LIB", "Libra" },
+                { "CET", "Cetus" },
+                { "ARI", "Aries" },
+                { "PYX", "Pyxis" },
+                { "BOO", "Bootes" },
+                { "CAE", "Caelum" },
+                { "CHA", "Chamaeleon" },
+                { "CNC", "Cancer" },
+                { "CAP", "Capricornus" },
+                { "CAR", "Carina" },
+                { "CAS", "Cassiopeia" },
+                { "CEN", "Centaurus" },
+                { "CEP", "Cepheus" },
+                { "COM", "Coma Berenices" },
+                { "CVN", "Canes Venatici" },
+                { "AUR", "Auriga" },
+                { "COL", "Columba" },
+                { "CIR", "Circinus" },
+                { "CRT", "Crater" },
+                { "CRA", "Corona Australis" },
+                { "CRB", "Corona Borealis" },
+                { "CRV", "Corvus" },
+                { "CRU", "Crux" },
+                { "CYG", "Cygnus" },
+                { "DEL", "Delphinus" },
+                { "DOR", "Dorado" },
+                { "DRA", "Draco" },
+                { "NOR", "Norma" },
+                { "ERI", "Eridanus" },
+                { "SGE", "Sagitta" },
+                { "FOR", "Fornax" },
+                { "GEM", "Gemini" },
+                { "CAM", "Camelopardalis" },
+                { "CMA", "Canis Major" },
+                { "UMA", "Ursa Major" },
+                { "GRU", "Grus" },
+                { "HER", "Hercules" },
+                { "HOR", "Horologium" },
+                { "HYA", "Hydra" },
+                { "HYI", "Hydrus" },
+                { "IND", "Indus" },
+                { "LAC", "Lacerta" },
+                { "MON", "Monoceros" },
+                { "LEP", "Lepus" },
+                { "LEO", "Leo" },
+                { "LUP", "Lupus" },
+                { "LYN", "Lynx" },
+                { "LYR", "Lyra" },
+                { "ANT", "Antlia" },
+                { "MIC", "Microscopium" },
+                { "MUS", "Musca" },
+                { "OCT", "Octans" },
+                { "APS", "Apus" },
+                { "OPH", "Ophiuchus" },
+                { "ORI", "Orion" },
+                { "PAV", "Pavo" },
+                { "PEG", "Pegasus" },
+                { "PIC", "Pictor" },
+                { "PER", "Perseus" },
+                { "EQU", "Equuleus" },
+                { "CMI", "Canis Minor" },
+                { "LMI", "Leo Minor" },
+                { "VUL", "Vulpecula" },
+                { "UMI", "Ursa Minor" },
+                { "PHE", "Phoenix" },
+                { "PSC", "Pisces" },
+                { "PSA", "Piscis Austrinus" },
+                { "VOL", "Volans" },
+                { "PUP", "Puppis" },
+                { "RET", "Reticulum" },
+                { "SGR", "Sagittarius" },
+                { "SCO", "Scorpius" },
+                { "SCT", "Scutum" },
+                { "SER", "Serpens" },
+                { "SEX", "Sextans" },
+                { "MEN", "Mensa" },
+                { "TAU", "Taurus" },
+                { "TEL", "Telescopium" },
+                { "TUC", "Tucana" },
+                { "TRI", "Triangulum" },
+                { "TRA", "Triangulum Australe" },
+                { "AQR", "Aquarius" },
+                { "VIR", "Virgo" },
+                { "VEL", "Vela" }
+            };
+
+            if (shortname.Contains("+"))
+            {
+                string[] parts = shortname.Split('+');
+                List<string> fullNames = new List<string>();
+                foreach (var p in parts)
+                {
+                    string trimmed = p.Trim();
+                    if (constellations.TryGetValue(trimmed, out string fullName))
+                    {
+                        fullNames.Add(fullName);
+                    }
+                    else
+                    {
+                        fullNames.Add(trimmed);
+                    }
+                }
+                return string.Join(" + ", fullNames);
+            }
+
+            if (constellations.TryGetValue(shortname, out string name))
+            {
+                return name;
+            }
+            return shortname;
         }
 
         /// <summary>

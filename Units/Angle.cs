@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using EphemSharp.Enums;
 
 namespace EphemSharp.Units
@@ -18,11 +18,13 @@ namespace EphemSharp.Units
         {
             Kind = kind;
             Degrees = degrees;
-            Arcmin = arcmin;
-            Arcsec = arcsec;
+            Arcmin = Math.Abs(arcmin);
+            Arcsec = Math.Abs(arcsec);
 
-            int sign = Math.Sign(degrees != 0 ? degrees : (Arcmin != 0 ? Arcmin : arcsec));
-            double total = Math.Abs(degrees) + Arcmin / 60.0 + arcsec / 3600.0;
+            int sign = Math.Sign(degrees != 0 ? degrees : (arcmin != 0 ? arcmin : arcsec));
+            if (sign == 0) sign = 1;
+
+            double total = Math.Abs(degrees) + Math.Abs(arcmin) / 60.0 + Math.Abs(arcsec) / 3600.0;
             total *= sign;
 
             Radians = kind == AngleType.Degrees
@@ -39,18 +41,35 @@ namespace EphemSharp.Units
                 ? radians * 360.0 / TAU
                 : radians * 24.0 / TAU;
 
-            Degrees = (int)total;
-            double mins = (total - Degrees) * 60.0;
-            Arcmin = (int)Math.Abs(mins);
-            Arcsec = Math.Abs((mins - Arcmin) * 60.0);
+            double absTotal = Math.Abs(total);
+            int sign = Math.Sign(total);
+            if (sign == 0) sign = 1;
+
+            int deg = (int)absTotal;
+            double mins = (absTotal - deg) * 60.0;
+            int min = (int)mins;
+            double sec = (mins - min) * 60.0;
+
+            Degrees = sign * deg;
+            Arcmin = min;
+            Arcsec = sec;
         }
 
         public static Angle FromDouble(double value, AngleType kind)
         {
-            int deg = (int)value;
-            double mins = (value - deg) * 60.0;
-            int min = (int)Math.Abs(mins);
-            double sec = Math.Abs((mins - min) * 60.0);
+            double absValue = Math.Abs(value);
+            int deg = (int)absValue;
+            double mins = (absValue - deg) * 60.0;
+            int min = (int)mins;
+            double sec = (mins - min) * 60.0;
+
+            int sign = Math.Sign(value);
+            if (sign < 0)
+            {
+                if (deg != 0) deg = -deg;
+                else if (min != 0) min = -min;
+                else sec = -sec;
+            }
             return new Angle(kind, deg, min, sec);
         }
 
@@ -68,9 +87,11 @@ namespace EphemSharp.Units
 
         public override string ToString()
         {
+            bool isNegative = Radians < 0;
+            string signStr = (isNegative && Degrees == 0) ? "-" : "";
             return Kind == AngleType.Degrees
-                ? $"{Degrees}° {Arcmin}' {Arcsec}\""
-                : $"{Degrees}h {Arcmin}m {Arcsec}s";
+                ? $"{signStr}{Degrees}° {Arcmin}' {Arcsec}\""
+                : $"{signStr}{Degrees}h {Arcmin}m {Arcsec}s";
         }
 
         public static explicit operator Angle(double value)

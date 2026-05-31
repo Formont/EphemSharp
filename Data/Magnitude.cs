@@ -1,4 +1,4 @@
-﻿using EphemSharp.Enums;
+using EphemSharp.Enums;
 using System;
 using static System.Math;
 
@@ -15,8 +15,10 @@ namespace EphemSharp.Data
                 case Planets.Earth: return EarthMagnitude(r, delta, phaseAngle);
                 case Planets.Mars: return MarsMagnitude(r, delta, phaseAngle);
                 case Planets.Jupiter: return JupiterMagnitude(r, delta, phaseAngle);
-                // Saturn, Uranus, Neptune требуют дополнительных параметров (например, наклон колец)
-                default: throw new ArgumentOutOfRangeException(nameof(planet), "Planets magnitude not implemented.");
+                case Planets.Saturn: return SaturnMagnitude(r, delta, phaseAngle);
+                case Planets.Uranus: return UranusMagnitude(r, delta, phaseAngle);
+                case Planets.Neptune: return NeptuneMagnitude(r, delta, phaseAngle);   
+                default: return 99.99;
             }
         }
 
@@ -91,6 +93,25 @@ namespace EphemSharp.Data
             double baseMag = ph <= 12.0 ? -9.395 : -9.428;
 
             return baseMag + distanceMagFactor + phAngFactor;
+        }
+
+        private static double SaturnMagnitude(double r, double delta, double phaseAngle)
+        {
+            double distanceMagFactor = 5 * Log10(r * delta);
+            // Simple Saturn magnitude formula (without complex ring system modeling)
+            return -8.88 + distanceMagFactor + 0.044 * phaseAngle;
+        }
+
+        private static double UranusMagnitude(double r, double delta, double phaseAngle)
+        {
+            double distanceMagFactor = 5 * Log10(r * delta);
+            return -7.19 + distanceMagFactor + 0.0028 * phaseAngle;
+        }
+
+        private static double NeptuneMagnitude(double r, double delta, double phaseAngle)
+        {
+            double distanceMagFactor = 5 * Log10(r * delta);
+            return -6.87 + distanceMagFactor;
         }
     }
 }

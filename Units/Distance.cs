@@ -1,4 +1,4 @@
-﻿namespace EphemSharp.Units
+namespace EphemSharp.Units
 {
     public class Distance
     {
@@ -10,12 +10,12 @@
         internal const double LY_KM = 9460730472580.8;
         public Distance(double au = 0, double km = 0) 
         { 
-            if (au > 0)
+            if (au != 0)
             {
                 AU = au;
                 KM = au * AU_KM;
             }
-            if (km > 0)
+            else if (km != 0)
             {
                 KM = km;
                 AU = km / AU_KM;

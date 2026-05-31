@@ -1,4 +1,4 @@
-﻿using EphemSharp.Units;
+using EphemSharp.Units;
 using EphemSharp.Enums;
 using EphemSharp.Utils;
 using System;
@@ -96,7 +96,7 @@ namespace EphemSharp.Bodies
 
             Angle ph = CountPhaseAngle(r.AU, delta, R.AU);
 
-            double mag = MagnitudeCounter.GetMagnitude(name, r.AU, delta, ph.Degrees);
+            double mag = MagnitudeCounter.GetMagnitude(name, r.AU, delta, ph.GetDegrees());
 
             var planet = new Planet(earthD, r, //distances
                 new Angle(AngleType.Hours, ra), new Angle(AngleType.Degrees, dec), //radec
