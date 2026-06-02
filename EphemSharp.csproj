@@ -50,6 +50,7 @@
     <Compile Include="Data\Magnitude.cs" />
     <Compile Include="Data\Mars.cs" />
     <Compile Include="Data\Moon.cs" />
+    <Compile Include="Data\MoonData.cs" />
     <Compile Include="Bodies\Star.cs" />
     <Compile Include="Data\Catalogs.cs" />
     <Compile Include="Data\Constellations.cs" />

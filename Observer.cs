@@ -2,6 +2,7 @@ using System;
 using EphemSharp.Utils;
 using EphemSharp.Units;
 using EphemSharp.Enums;
+using EphemSharp.Bodies;
 
 namespace EphemSharp
 {
@@ -110,8 +111,12 @@ namespace EphemSharp
         /// <returns>An <see cref="ObservedObject"/> containing the calculated altitude, azimuth, and hour angle.</returns>
         public ObservedObject Observe(CelestialBody body, double jd)
         {
-            double[] azah = RaDecToAltAz(body.RightAscension.Radians,
-                body.Declination.Radians,
+            double raTopo, decTopo;
+            Distance distTopo;
+            GetTopocentricCoords(body, jd, out raTopo, out decTopo, out distTopo);
+
+            double[] azah = RaDecToAltAz(raTopo,
+                decTopo,
                 ((Angle)this.Latitude).Radians,
                 ((Angle)this.Longitude).Radians,
                 jd
@@ -120,7 +125,77 @@ namespace EphemSharp
             Angle alt = new Angle(AngleType.Degrees, azah[0]);
             Angle az = new Angle(AngleType.Degrees, azah[1]);
             Angle h = new Angle(AngleType.Hours, azah[2]);
-            return new ObservedObject(alt, az, h);
+            Angle ra = new Angle(AngleType.Hours, raTopo);
+            Angle dec = new Angle(AngleType.Degrees, decTopo);
+            return new ObservedObject(alt, az, h, ra, dec, distTopo);
+        }
+
+        private void GetTopocentricCoords(CelestialBody body, double jd, out double raTopo, out double decTopo, out Distance distTopo)
+        {
+            Distance geoDistance = null;
+            if (body is Planet planet)
+            {
+                geoDistance = planet.EarthDistance;
+            }
+            else if (body is Star star)
+            {
+                geoDistance = star.Distance;
+            }
+
+            if (geoDistance == null || double.IsInfinity(geoDistance.AU) || double.IsNaN(geoDistance.AU))
+            {
+                raTopo = body.RightAscension.Radians;
+                decTopo = body.Declination.Radians;
+                distTopo = geoDistance ?? new Distance(au: double.PositiveInfinity);
+                return;
+            }
+
+            double ra = body.RightAscension.Radians;
+            double dec = body.Declination.Radians;
+            double delta = geoDistance.AU;
+
+            double lat = ((Angle)this.Latitude).Radians;
+            double lon = ((Angle)this.Longitude).Radians;
+
+            double gmst = GreenwichMeanSiderealTime(jd);
+            double lst = (gmst + lon) % (2 * Math.PI);
+
+            // Standard geodetic to geocentric coordinates conversion (Meeus AA, p.82)
+            double f = 1.0 / 298.25642;
+            double e2 = 2.0 * f - f * f;
+            double sinLat = Math.Sin(lat);
+            double C = 1.0 / Math.Sqrt(1.0 - e2 * sinLat * sinLat);
+
+            double h_m = this.Elevation;
+            double earthRadiusEqKM = 6378.1366;
+            double earthRadiusEqMeters = earthRadiusEqKM * 1000.0;
+
+            double rhoCosPhiP = (C + h_m / earthRadiusEqMeters) * Math.Cos(lat);
+            double rhoSinPhiP = (C * (1.0 - e2) + h_m / earthRadiusEqMeters) * sinLat;
+
+            // Convert observer's geocentric position vector to AU
+            double earthRadiusEqAU = earthRadiusEqKM / Distance.AU_KM;
+            double x_obs = rhoCosPhiP * Math.Cos(lst) * earthRadiusEqAU;
+            double y_obs = rhoCosPhiP * Math.Sin(lst) * earthRadiusEqAU;
+            double z_obs = rhoSinPhiP * earthRadiusEqAU;
+
+            // Geocentric equatorial J2000 coordinates of the body in AU
+            double x_geo = delta * Math.Cos(dec) * Math.Cos(ra);
+            double y_geo = delta * Math.Cos(dec) * Math.Sin(ra);
+            double z_geo = delta * Math.Sin(dec);
+
+            // Topocentric equatorial J2000 coordinates of the body in AU
+            double x_topo = x_geo - x_obs;
+            double y_topo = y_geo - y_obs;
+            double z_topo = z_geo - z_obs;
+
+            double delta_topo = Math.Sqrt(x_topo * x_topo + y_topo * y_topo + z_topo * z_topo);
+
+            raTopo = Math.Atan2(y_topo, x_topo);
+            if (raTopo < 0) raTopo += 2 * Math.PI;
+
+            decTopo = Math.Asin(z_topo / delta_topo);
+            distTopo = new Distance(au: delta_topo);
         }
 
         /// <summary>
@@ -196,6 +271,10 @@ namespace EphemSharp
             if (localTime.Kind == DateTimeKind.Utc)
             {
                 return localTime;
+            }
+            if (localTime.Kind == DateTimeKind.Local)
+            {
+                return localTime.ToUniversalTime();
             }
             return TimeZoneInfo.ConvertTimeToUtc(localTime, TimeZone);
         }
