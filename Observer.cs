@@ -25,6 +25,35 @@ namespace EphemSharp
         /// </summary>
         double Elevation { get; set; }  
 
+        private TimeZoneInfo _timeZone;
+
+        /// <summary>
+        /// Gets or sets the timezone for the observer. If not explicitly set, a custom timezone is created based on the longitude-derived offset.
+        /// </summary>
+        public TimeZoneInfo TimeZone
+        {
+            get
+            {
+                if (_timeZone != null)
+                {
+                    return _timeZone;
+                }
+                double offsetHours = Math.Round(Longitude / 15.0);
+                offsetHours = Math.Max(-14, Math.Min(14, offsetHours));
+                TimeSpan offset = TimeSpan.FromHours(offsetHours);
+                return TimeZoneInfo.CreateCustomTimeZone($"Offset_{offsetHours}", offset, $"UTC{offsetHours:+#;-#;+0}", $"UTC{offsetHours:+#;-#;+0}");
+            }
+            set
+            {
+                _timeZone = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the timezone offset in hours for the current timezone.
+        /// </summary>
+        public double TimeZoneOffset => TimeZone.BaseUtcOffset.TotalHours;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Observer"/> class at 0 latitude and 0 longitude.
         /// </summary>
@@ -33,6 +62,7 @@ namespace EphemSharp
             Latitude = 0;
             Longitude = 0;
             Elevation = 0;
+            _timeZone = null;
         }
 
         /// <summary>
@@ -41,11 +71,13 @@ namespace EphemSharp
         /// <param name="latitude">The geographic latitude in degrees.</param>
         /// <param name="longitude">The geographic longitude in degrees.</param>
         /// <param name="elevation">The elevation above sea level in meters (defaults to 0).</param>
-        public Observer(double latitude, double longitude, double elevation = 0)
+        /// <param name="timeZone">The optional observer's timezone.</param>
+        public Observer(double latitude, double longitude, double elevation = 0, TimeZoneInfo timeZone = null)
         {
             Latitude = latitude;
             Longitude = longitude;
             Elevation = elevation;
+            _timeZone = timeZone;
         }
 
         /// <summary>
@@ -59,14 +91,15 @@ namespace EphemSharp
         }
 
         /// <summary>
-        /// Observes a celestial body at a specific UTC date and time.
+        /// Observes a celestial body at a specific local date and time of the observer.
         /// </summary>
         /// <param name="body">The celestial body to observe.</param>
-        /// <param name="utc">The date and time in UTC.</param>
+        /// <param name="localTime">The local date and time of the observer.</param>
         /// <returns>An <see cref="ObservedObject"/> containing the calculated altitude, azimuth, and hour angle.</returns>
-        public ObservedObject Observe(CelestialBody body, DateTime utc)
+        public ObservedObject Observe(CelestialBody body, DateTime localTime)
         {
-            return Observe(body, Time.ToJulianDate(utc));
+            DateTime utcTime = ConvertToUtc(localTime);
+            return Observe(body, Time.ToJulianDate(utcTime));
         }
 
         /// <summary>
@@ -151,6 +184,34 @@ namespace EphemSharp
             if (theta < 0) theta += 2 * Math.PI;
 
             return theta;
+        }
+
+        /// <summary>
+        /// Converts a local date and time of the observer to UTC.
+        /// </summary>
+        /// <param name="localTime">The local date and time.</param>
+        /// <returns>The corresponding UTC date and time.</returns>
+        public DateTime ConvertToUtc(DateTime localTime)
+        {
+            if (localTime.Kind == DateTimeKind.Utc)
+            {
+                return localTime;
+            }
+            return TimeZoneInfo.ConvertTimeToUtc(localTime, TimeZone);
+        }
+
+        /// <summary>
+        /// Converts a UTC date and time to the observer's local time.
+        /// </summary>
+        /// <param name="utcTime">The UTC date and time.</param>
+        /// <returns>The corresponding local date and time.</returns>
+        public DateTime ConvertToLocal(DateTime utcTime)
+        {
+            if (utcTime.Kind == DateTimeKind.Local && TimeZone.Equals(TimeZoneInfo.Local))
+            {
+                return utcTime;
+            }
+            return TimeZoneInfo.ConvertTimeFromUtc(utcTime.ToUniversalTime(), TimeZone);
         }
     }
 }

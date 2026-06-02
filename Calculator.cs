@@ -55,20 +55,23 @@ namespace EphemSharp
         {
             var result = new Dictionary<string, DateTime>();
 
-            DateTime start = dateTime.Date;
-            DateTime end = start.AddDays(1);
+            DateTime localStart = dateTime.Date;
+            DateTime localEnd = localStart.AddDays(1);
+
+            DateTime startUtc = obs.ConvertToUtc(localStart);
+            DateTime endUtc = obs.ConvertToUtc(localEnd);
 
             double[] thresholds = { -18.0, -12.0, -6.0, -0.833 };
             string[] riseNames = { "Astronomical Dawn", "Nautical Dawn", "Civil Dawn", "Sunrise" };
             string[] setNames = { "Astronomical Dusk", "Nautical Dusk", "Civil Dusk", "Sunset" };
 
-            DateTime current = start;
-            double prevAlt = SunAltitude(obs, current);
+            DateTime currentUtc = startUtc;
+            double prevAlt = SunAltitude(obs, Utils.Time.ToJulianDate(currentUtc));
 
-            while (current <= end)
+            while (currentUtc <= endUtc)
             {
-                current = current.AddMinutes(1);
-                double alt = SunAltitude(obs, current);
+                currentUtc = currentUtc.AddMinutes(1);
+                double alt = SunAltitude(obs, Utils.Time.ToJulianDate(currentUtc));
 
                 for (int i = 0; i < thresholds.Length; i++)
                 {
@@ -77,13 +80,13 @@ namespace EphemSharp
                     if (prevAlt < thresh && alt >= thresh)
                     {
                         string name = riseNames[i];
-                        if (!result.ContainsKey(name)) result[name] = current;
+                        if (!result.ContainsKey(name)) result[name] = obs.ConvertToLocal(currentUtc);
                     }
                     // Check if it crossed the threshold setting
                     if (prevAlt >= thresh && alt < thresh)
                     {
                         string name = setNames[i];
-                        if (!result.ContainsKey(name)) result[name] = current;
+                        if (!result.ContainsKey(name)) result[name] = obs.ConvertToLocal(currentUtc);
                     }
                 }
 
@@ -93,15 +96,15 @@ namespace EphemSharp
         }
 
         /// <summary>
-        /// Calculates the precise altitude of the Sun above the horizon for a given observer and time.
+        /// Calculates the precise altitude of the Sun above the horizon for a given observer and Julian Date.
         /// </summary>
         /// <param name="obs">The observer with geographic coordinates.</param>
-        /// <param name="time">The time at which the calculation is performed.</param>
+        /// <param name="jd">The Julian Date at which the calculation is performed.</param>
         /// <returns>The angular altitude of the Sun in degrees.</returns>
-        static double SunAltitude(Observer obs, DateTime time)
+        static double SunAltitude(Observer obs, double jd)
         {
-            var sun = Planet.GetPlanet(Planets.Sun, time);
-            var observed = obs.Observe(sun, time);
+            var sun = Planet.GetPlanet(Planets.Sun, jd);
+            var observed = obs.Observe(sun, jd);
             return observed.Altitude.GetDegrees();
         }
     }

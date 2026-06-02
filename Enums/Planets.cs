@@ -1,4 +1,4 @@
-﻿
+
 namespace EphemSharp.Enums
 {
     public enum Planets
@@ -11,6 +11,7 @@ namespace EphemSharp.Enums
         Saturn,
         Uranus,
         Neptune,
-        Sun
+        Sun,
+        Moon
     }
 }

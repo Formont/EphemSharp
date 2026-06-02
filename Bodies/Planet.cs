@@ -51,6 +51,7 @@ namespace EphemSharp.Bodies
             double UranusRKM = 25559.0;
             double NeptuneRKM = 24764.0;
             double EarthRKM = 6378.1366;
+            double MoonRKM = 1737.4;
 
             switch (planetName)
             {
@@ -73,6 +74,8 @@ namespace EphemSharp.Bodies
                     return BuildPlanet(planetName, Earth.XYZR, jd, EarthRKM);
                 case Planets.Sun:
                     return BuildPlanet(planetName, Sun.XYZR, jd, SunRKM);
+                case Planets.Moon:
+                    return BuildPlanet(planetName, Moon.XYZR, jd, MoonRKM);
             }
             return null;
         }

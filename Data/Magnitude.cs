@@ -18,6 +18,7 @@ namespace EphemSharp.Data
                 case Planets.Saturn: return SaturnMagnitude(r, delta, phaseAngle);
                 case Planets.Uranus: return UranusMagnitude(r, delta, phaseAngle);
                 case Planets.Neptune: return NeptuneMagnitude(r, delta, phaseAngle);   
+                case Planets.Moon: return MoonMagnitude(r, delta, phaseAngle);
                 default: return 99.99;
             }
         }
@@ -112,6 +113,14 @@ namespace EphemSharp.Data
         {
             double distanceMagFactor = 5 * Log10(r * delta);
             return -6.87 + distanceMagFactor;
+        }
+
+        private static double MoonMagnitude(double r, double delta, double phaseAngle)
+        {
+            double psi = phaseAngle * PI / 180.0;
+            double baseMag = -12.73 + 1.49 * Abs(psi) + 0.043 * Pow(psi, 4);
+            double distCorr = 5 * Log10(delta / 0.00257);
+            return baseMag + distCorr;
         }
     }
 }
