@@ -19,6 +19,7 @@ namespace EphemSharp.Data
                 case Planets.Uranus: return UranusMagnitude(r, delta, phaseAngle);
                 case Planets.Neptune: return NeptuneMagnitude(r, delta, phaseAngle);   
                 case Planets.Moon: return MoonMagnitude(r, delta, phaseAngle);
+                case Planets.Sun: return SunMagnitude(delta);
                 default: return 99.99;
             }
         }
@@ -121,6 +122,11 @@ namespace EphemSharp.Data
             double baseMag = -12.73 + 1.49 * Abs(psi) + 0.043 * Pow(psi, 4);
             double distCorr = 5 * Log10(delta / 0.00257);
             return baseMag + distCorr;
+        }
+
+        private static double SunMagnitude(double delta)
+        {
+            return -26.74 + 5 * Log10(delta);
         }
     }
 }

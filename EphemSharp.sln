@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EphemSharp", "EphemSharp.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEphem", "..\TestEphem\TestEphem.csproj", "{F91391DD-23EE-4A59-9884-F602B8519FC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EphemSharp.Tests", "EphemSharp.Tests\EphemSharp.Tests.csproj", "{4FDF2E02-1A88-4BFE-B470-492FCAE36065}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F91391DD-23EE-4A59-9884-F602B8519FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F91391DD-23EE-4A59-9884-F602B8519FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F91391DD-23EE-4A59-9884-F602B8519FC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FDF2E02-1A88-4BFE-B470-492FCAE36065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FDF2E02-1A88-4BFE-B470-492FCAE36065}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FDF2E02-1A88-4BFE-B470-492FCAE36065}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FDF2E02-1A88-4BFE-B470-492FCAE36065}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
