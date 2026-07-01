@@ -113,7 +113,8 @@ namespace EphemSharp
         {
             double raTopo, decTopo;
             Distance distTopo;
-            GetTopocentricCoords(body, jd, out raTopo, out decTopo, out distTopo);
+            Angle angularSizeTopo;
+            GetTopocentricCoords(body, jd, out raTopo, out decTopo, out distTopo, out angularSizeTopo);
 
             double[] azah = RaDecToAltAz(raTopo,
                 decTopo,
@@ -127,15 +128,17 @@ namespace EphemSharp
             Angle h = new Angle(AngleType.Hours, azah[2]);
             Angle ra = new Angle(AngleType.Hours, raTopo);
             Angle dec = new Angle(AngleType.Degrees, decTopo);
-            return new ObservedObject(alt, az, h, ra, dec, distTopo);
+            return new ObservedObject(alt, az, h, ra, dec, distTopo, angularSizeTopo);
         }
 
-        private void GetTopocentricCoords(CelestialBody body, double jd, out double raTopo, out double decTopo, out Distance distTopo)
+        private void GetTopocentricCoords(CelestialBody body, double jd, out double raTopo, out double decTopo, out Distance distTopo, out Angle angularSizeTopo)
         {
             Distance geoDistance = null;
+            Angle? geoAngularSize = null;
             if (body is Planet planet)
             {
                 geoDistance = planet.EarthDistance;
+                geoAngularSize = planet.AngularSize;
             }
             else if (body is Star star)
             {
@@ -147,6 +150,7 @@ namespace EphemSharp
                 raTopo = body.RightAscension.Radians;
                 decTopo = body.Declination.Radians;
                 distTopo = geoDistance ?? new Distance(au: double.PositiveInfinity);
+                angularSizeTopo = geoAngularSize ?? new Angle(AngleType.Degrees, 0);
                 return;
             }
 
@@ -184,10 +188,49 @@ namespace EphemSharp
             double y_geo = delta * Math.Cos(dec) * Math.Sin(ra);
             double z_geo = delta * Math.Sin(dec);
 
-            // Topocentric equatorial J2000 coordinates of the body in AU
-            double x_topo = x_geo - x_obs;
-            double y_topo = y_geo - y_obs;
-            double z_topo = z_geo - z_obs;
+            // Calculate Precession Matrix from J2000 to epoch of date (Meeus Chapter 21)
+            double T = (jd - 2451545.0) / 36525.0;
+            double T2 = T * T;
+            double T3 = T2 * T;
+
+            // In arcseconds
+            double zeta_a = 2306.2181 * T + 0.30188 * T2 + 0.017998 * T3;
+            double z_a = 2306.2181 * T + 1.09468 * T2 + 0.018203 * T3;
+            double theta_a = 2004.3109 * T - 0.42665 * T2 - 0.041833 * T3;
+
+            // Convert to radians
+            double zeta = zeta_a / 3600.0 * Math.PI / 180.0;
+            double z_rad = z_a / 3600.0 * Math.PI / 180.0;
+            double theta = theta_a / 3600.0 * Math.PI / 180.0;
+
+            double cz = Math.Cos(z_rad);
+            double sz = Math.Sin(z_rad);
+            double ctheta = Math.Cos(theta);
+            double stheta = Math.Sin(theta);
+            double czeta = Math.Cos(zeta);
+            double szeta = Math.Sin(zeta);
+
+            double p11 = cz * ctheta * czeta - sz * szeta;
+            double p12 = -cz * ctheta * szeta - sz * czeta;
+            double p13 = -cz * stheta;
+
+            double p21 = sz * ctheta * czeta + cz * szeta;
+            double p22 = -sz * ctheta * szeta + cz * czeta;
+            double p23 = -sz * stheta;
+
+            double p31 = stheta * czeta;
+            double p32 = -stheta * szeta;
+            double p33 = ctheta;
+
+            // Geocentric equatorial coordinates of the body for the epoch of date in AU
+            double x_date = p11 * x_geo + p12 * y_geo + p13 * z_geo;
+            double y_date = p21 * x_geo + p22 * y_geo + p23 * z_geo;
+            double z_date = p31 * x_geo + p32 * y_geo + p33 * z_geo;
+
+            // Topocentric equatorial coordinates of the body for the epoch of date in AU
+            double x_topo = x_date - x_obs;
+            double y_topo = y_date - y_obs;
+            double z_topo = z_date - z_obs;
 
             double delta_topo = Math.Sqrt(x_topo * x_topo + y_topo * y_topo + z_topo * z_topo);
 
@@ -196,6 +239,16 @@ namespace EphemSharp
 
             decTopo = Math.Asin(z_topo / delta_topo);
             distTopo = new Distance(au: delta_topo);
+
+            if (geoAngularSize != null && geoAngularSize.Value.Radians > 0)
+            {
+                double radiusKm = Math.Sin(geoAngularSize.Value.Radians / 2.0) * geoDistance.KM;
+                angularSizeTopo = new Angle(AngleType.Degrees, Math.Asin(radiusKm / distTopo.KM) * 2.0);
+            }
+            else
+            {
+                angularSizeTopo = new Angle(AngleType.Degrees, 0);
+            }
         }
 
         /// <summary>

@@ -6,7 +6,7 @@ namespace EphemSharp.Data
 {
     public static class MagnitudeCounter
     {
-        public static double GetMagnitude(Planets planet, double r, double delta, double phaseAngle)
+        public static double GetMagnitude(Planets planet, double r, double delta, double phaseAngle, double ra = 0, double dec = 0)
         {
             switch (planet)
             {
@@ -15,7 +15,7 @@ namespace EphemSharp.Data
                 case Planets.Earth: return EarthMagnitude(r, delta, phaseAngle);
                 case Planets.Mars: return MarsMagnitude(r, delta, phaseAngle);
                 case Planets.Jupiter: return JupiterMagnitude(r, delta, phaseAngle);
-                case Planets.Saturn: return SaturnMagnitude(r, delta, phaseAngle);
+                case Planets.Saturn: return SaturnMagnitude(r, delta, phaseAngle, ra, dec);
                 case Planets.Uranus: return UranusMagnitude(r, delta, phaseAngle);
                 case Planets.Neptune: return NeptuneMagnitude(r, delta, phaseAngle);   
                 case Planets.Moon: return MoonMagnitude(r, delta, phaseAngle);
@@ -97,11 +97,18 @@ namespace EphemSharp.Data
             return baseMag + distanceMagFactor + phAngFactor;
         }
 
-        private static double SaturnMagnitude(double r, double delta, double phaseAngle)
+        private static double SaturnMagnitude(double r, double delta, double phaseAngle, double ra, double dec)
         {
             double distanceMagFactor = 5 * Log10(r * delta);
-            // Simple Saturn magnitude formula (without complex ring system modeling)
-            return -8.88 + distanceMagFactor + 0.044 * phaseAngle;
+            
+            // Saturn pole RA = 40.6 deg, Dec = 83.5 deg
+            double poleRa = 40.6 * PI / 180.0;
+            double poleDec = 83.5 * PI / 180.0;
+            
+            // Calculate ring tilt B
+            double sinB = Abs(Sin(poleDec) * Sin(dec) + Cos(poleDec) * Cos(dec) * Cos(poleRa - ra));
+            
+            return -8.88 + distanceMagFactor + 0.044 * phaseAngle - 2.60 * sinB + 1.25 * (sinB * sinB);
         }
 
         private static double UranusMagnitude(double r, double delta, double phaseAngle)

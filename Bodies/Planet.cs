@@ -29,7 +29,7 @@ namespace EphemSharp.Bodies
 
         public static Planet GetPlanet(Planets planetName)
         {
-            return GetPlanet(planetName, Time.ToJulianDate(DateTime.Now));
+            return GetPlanet(planetName, Time.ToJulianDate(DateTime.UtcNow));
         }
 
         public static Planet GetPlanet(Planets planetName, DateTime dateTime)
@@ -99,7 +99,7 @@ namespace EphemSharp.Bodies
 
             Angle ph = CountPhaseAngle(r.AU, delta, R.AU);
 
-            double mag = MagnitudeCounter.GetMagnitude(name, r.AU, delta, ph.GetDegrees());
+            double mag = MagnitudeCounter.GetMagnitude(name, r.AU, delta, ph.GetDegrees(), ra, dec);
 
             var planet = new Planet(earthD, r, //distances
                 new Angle(AngleType.Hours, ra), new Angle(AngleType.Degrees, dec), //radec
