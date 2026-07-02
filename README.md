@@ -95,5 +95,6 @@ Use this library **at your own risk**.
 
 ### 📚 References
 - [VSOP87 planetary theory](https://www.neoprogrammics.com/vsop87/source_code_generator_tool/)
+- ELP2000-82B
 - [Skyfield (Python) — used as conceptual inspiration](https://rhodesmill.org/skyfield/)
 - IAU constellation boundaries
