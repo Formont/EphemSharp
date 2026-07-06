@@ -75,9 +75,9 @@ for (int i = 0; i <= 365.25 * 100; i++)
 ```C#
 var obs = new Observer(-33.92487, 18.42406); //Cape Town
 var jup = Planet.GetPlanet(Planets.Jupiter);
-var transitTime = AstronomicalEvents.FindTransitTime(obs, jup, DateTime.UtcNow, DateTime.UtcNow.AddDays(1));
-DateTime? setTime = AstronomicalEvents.FindSetTime(obs, jup, DateTime.UtcNow, DateTime.UtcNow.AddDays(1));
-DateTime? riseTime = AstronomicalEvents.FindRiseTime(obs, jup, DateTime.UtcNow, DateTime.UtcNow.AddDays(1));
+var transitTime = AstronomicalEvents.FindTransitTime(obs, jup, DateTime.Today, DateTime.Today.AddDays(1));
+DateTime? setTime = AstronomicalEvents.FindSetTime(obs, jup, DateTime.Today, DateTime.Today.AddDays(1));
+DateTime? riseTime = AstronomicalEvents.FindRiseTime(obs, jup, DateTime.Today, DateTime.Today.AddDays(1));
 ```
 ---
 ### ⚠️ Disclaimer
