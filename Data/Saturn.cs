@@ -9,9 +9,9 @@ namespace EphemSharp.Data
 {
     public class Saturn
     {
-        public static (Vector xyz, Distance r) XYZR(double jd)
+        public static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
-            double t = (jd - 2451545.0) / 365250.0;
+            double t = time.JulianCenturiesTDB / 10.0;
 
             double x = Saturn_E_X0(t) + Saturn_E_X1(t) + Saturn_E_X2(t) + Saturn_E_X3(t) + Saturn_E_X4(t) + Saturn_E_X5(t);
 

@@ -12,7 +12,7 @@ namespace EphemSharp
     {
         static bool IsAboveHorizon(Observer observer, CelestialBody body, DateTime utcTime)
         {
-            var obs = observer.Observe(body, Utils.Time.ToJulianDate(utcTime));
+            var obs = observer.Observe(body, new AstroTime(utcTime));
             return obs.Altitude.GetDegrees() > 0;
         }
 
@@ -54,7 +54,7 @@ namespace EphemSharp
 
             while (currentUtc <= endUtc)
             {
-                var observed = observer.Observe(body, Utils.Time.ToJulianDate(currentUtc));
+                var observed = observer.Observe(body, new AstroTime(currentUtc));
                 bool isAbove = observed.Altitude.GetDegrees() > 0;
 
                 if (wasAbove && !isAbove)
@@ -80,7 +80,7 @@ namespace EphemSharp
 
             while (currentUtc <= endUtc)
             {
-                var observed = observer.Observe(body, Utils.Time.ToJulianDate(currentUtc));
+                var observed = observer.Observe(body, new AstroTime(currentUtc));
                 double alt = observed.Altitude.GetDegrees();
 
                 if (alt > maxAlt)
@@ -94,7 +94,7 @@ namespace EphemSharp
 
             if (maxTimeUtc.HasValue)
             {
-                var alt = observer.Observe(body, Utils.Time.ToJulianDate(maxTimeUtc.Value)).Altitude;
+                var alt = observer.Observe(body, new AstroTime(maxTimeUtc.Value)).Altitude;
                 return (observer.ConvertToLocal(maxTimeUtc.Value), alt);
             }
 
@@ -110,13 +110,13 @@ namespace EphemSharp
         public static MoonPhase GetMoonPhase(Observer observer, DateTime localTime)
         {
             DateTime utcTime = observer.ConvertToUtc(localTime);
-            double jd = Utils.Time.ToJulianDate(utcTime);
+            AstroTime time = new AstroTime(utcTime);
 
-            var earthPos = Bodies.Earth.XYZR(jd);
+            var earthPos = Bodies.Earth.XYZR(time);
             double l_sun = Math.Atan2(-earthPos.xyz.Y, -earthPos.xyz.X);
             if (l_sun < 0) l_sun += 2 * Math.PI;
 
-            var moon = Bodies.Planet.GetPlanet(Planets.Moon, jd);
+            var moon = Bodies.Planet.GetPlanet(Planets.Moon, time);
             Vector moonGeocentric = moon.XYZ - earthPos.xyz;
             double l_moon = Math.Atan2(moonGeocentric.Y, moonGeocentric.X);
             if (l_moon < 0) l_moon += 2 * Math.PI;

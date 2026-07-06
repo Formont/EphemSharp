@@ -54,10 +54,10 @@ namespace EphemSharp.Data
         private static readonly double o_const = 0.02292188611773368;
         private static readonly double r_const = 0.074801329518;
 
-        public static (Vector xyz, Distance r) XYZR(double jd)
+        public static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
             // Geocentric rotated coordinates in kilometers
-            Vector geoKM = CartesianJ2000Rotated(jd);
+            Vector geoKM = CartesianJ2000Rotated(time);
 
             // Convert to Astronomical Units (AU)
             double x_geo = geoKM.X / Distance.AU_KM;
@@ -65,7 +65,7 @@ namespace EphemSharp.Data
             double z_geo = geoKM.Z / Distance.AU_KM;
 
             // Get Earth's heliocentric position
-            var earthPos = Earth.XYZR(jd);
+            var earthPos = Earth.XYZR(time);
 
             // Heliocentric coordinates: Moon = Earth + geocentric Moon
             Vector moonHeliocentricXyz = earthPos.xyz + new Vector(x_geo, y_geo, z_geo);
@@ -195,9 +195,9 @@ namespace EphemSharp.Data
             return h_val;
         }
 
-        public static (double longitude, double latitude, double distance) SphericalJ2000(double jd)
+        public static (double longitude, double latitude, double distance) SphericalJ2000(AstroTime time)
         {
-            double B_centuries = (jd - 2451545.0) / 36525.0;
+            double B_centuries = time.JulianCenturiesTDB;
             MeanArgs e_args = EvaluateMeanArgs(B_centuries, 5);
             Delaunay M_delaunay = L(e_args);
             Delaunay d_delaunay = L(EvaluateMeanArgs(B_centuries, 2));
@@ -260,9 +260,9 @@ namespace EphemSharp.Data
             return (y, I, O);
         }
 
-        public static Vector CartesianJ2000(double jd)
+        public static Vector CartesianJ2000(AstroTime time)
         {
-            var spherical = SphericalJ2000(jd);
+            var spherical = SphericalJ2000(time);
             double longitude = spherical.longitude;
             double latitude = spherical.latitude;
             double distance = spherical.distance;
@@ -272,14 +272,14 @@ namespace EphemSharp.Data
             return new Vector(x, y, z);
         }
 
-        public static Vector CartesianJ2000Rotated(double jd)
+        public static Vector CartesianJ2000Rotated(AstroTime time)
         {
-            Vector pos = CartesianJ2000(jd);
+            Vector pos = CartesianJ2000(time);
             double B = pos.X;
             double A = pos.Y;
             double h_val = pos.Z;
 
-            double p_centuries = (jd - 2451545.0) / 36525.0;
+            double p_centuries = time.JulianCenturiesTDB;
             double e = 10180391e-12 * p_centuries + 4.7020439e-7 * p_centuries * p_centuries -
                        5.417367e-10 * p_centuries * p_centuries * p_centuries -
                        2507948e-18 * p_centuries * p_centuries * p_centuries * p_centuries +

@@ -1,5 +1,4 @@
 using System;
-using EphemSharp.Utils;
 using EphemSharp.Units;
 using EphemSharp.Enums;
 using EphemSharp.Bodies;
@@ -88,7 +87,7 @@ namespace EphemSharp
         /// <returns>An <see cref="ObservedObject"/> containing the calculated altitude, azimuth, and hour angle.</returns>
         public ObservedObject Observe(CelestialBody body)
         {
-            return Observe(body, Time.ToJulianDate(DateTime.UtcNow));
+            return Observe(body, new AstroTime(DateTime.UtcNow));
         }
 
         /// <summary>
@@ -100,7 +99,7 @@ namespace EphemSharp
         public ObservedObject Observe(CelestialBody body, DateTime localTime)
         {
             DateTime utcTime = ConvertToUtc(localTime);
-            return Observe(body, Time.ToJulianDate(utcTime));
+            return Observe(body, new AstroTime(utcTime));
         }
 
         /// <summary>
@@ -109,18 +108,18 @@ namespace EphemSharp
         /// <param name="body">The celestial body to observe.</param>
         /// <param name="jd">The Julian Date.</param>
         /// <returns>An <see cref="ObservedObject"/> containing the calculated altitude, azimuth, and hour angle.</returns>
-        public ObservedObject Observe(CelestialBody body, double jd)
+        public ObservedObject Observe(CelestialBody body, AstroTime time)
         {
             double raTopo, decTopo;
             Distance distTopo;
             Angle angularSizeTopo;
-            GetTopocentricCoords(body, jd, out raTopo, out decTopo, out distTopo, out angularSizeTopo);
+            GetTopocentricCoords(body, time, out raTopo, out decTopo, out distTopo, out angularSizeTopo);
 
             double[] azah = RaDecToAltAz(raTopo,
                 decTopo,
                 ((Angle)this.Latitude).Radians,
                 ((Angle)this.Longitude).Radians,
-                jd
+                time
             );
 
             Angle alt = new Angle(AngleType.Degrees, azah[0]);
@@ -131,7 +130,7 @@ namespace EphemSharp
             return new ObservedObject(alt, az, h, ra, dec, distTopo, angularSizeTopo);
         }
 
-        private void GetTopocentricCoords(CelestialBody body, double jd, out double raTopo, out double decTopo, out Distance distTopo, out Angle angularSizeTopo)
+        private void GetTopocentricCoords(CelestialBody body, AstroTime time, out double raTopo, out double decTopo, out Distance distTopo, out Angle angularSizeTopo)
         {
             Distance geoDistance = null;
             Angle? geoAngularSize = null;
@@ -161,7 +160,7 @@ namespace EphemSharp
             double lat = ((Angle)this.Latitude).Radians;
             double lon = ((Angle)this.Longitude).Radians;
 
-            double gmst = GreenwichMeanSiderealTime(jd);
+            double gmst = GreenwichMeanSiderealTime(time.UT1_JD);
             double lst = (gmst + lon) % (2 * Math.PI);
 
             // Standard geodetic to geocentric coordinates conversion (Meeus AA, p.82)
@@ -189,7 +188,7 @@ namespace EphemSharp
             double z_geo = delta * Math.Sin(dec);
 
             // Calculate Precession Matrix from J2000 to epoch of date (Meeus Chapter 21)
-            double T = (jd - 2451545.0) / 36525.0;
+            double T = time.JulianCenturiesTT;
             double T2 = T * T;
             double T3 = T2 * T;
 
@@ -260,10 +259,10 @@ namespace EphemSharp
         /// <param name="lon">Observer's longitude in radians.</param>
         /// <param name="jd">Julian Date.</param>
         /// <returns>An array containing Altitude [0], Azimuth [1], and Hour Angle [2].</returns>
-        static double[] RaDecToAltAz(double ra, double dec, double lat, double lon, double jd)
+        static double[] RaDecToAltAz(double ra, double dec, double lat, double lon, AstroTime time)
         {
             // Meeus 13.5 and 13.6, modified so West longitudes are negative and 0 is North
-            double jd_ut = jd;
+            double jd_ut = time.UT1_JD;
             double gmst = GreenwichMeanSiderealTime(jd_ut);
             double localSiderealTime = (gmst + lon) % (2 * Math.PI);
 

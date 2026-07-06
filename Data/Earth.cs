@@ -4,9 +4,9 @@ namespace EphemSharp.Bodies
 {
     public static class Earth
     {
-        public static (Vector xyz, Distance r) XYZR(double jd)
+        public static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
-            double t = (jd - 2451545.0) / 365250.0;
+            double t = time.JulianCenturiesTDB / 10.0;
 
             double x = Earth_E_X0(t) + Earth_E_X1(t) + Earth_E_X2(t) + Earth_E_X3(t) + Earth_E_X4(t) + Earth_E_X5(t);
 

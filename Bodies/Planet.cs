@@ -1,6 +1,5 @@
 using EphemSharp.Units;
 using EphemSharp.Enums;
-using EphemSharp.Utils;
 using System;
 using EphemSharp.Data;
 
@@ -29,14 +28,14 @@ namespace EphemSharp.Bodies
 
         public static Planet GetPlanet(Planets planetName)
         {
-            return GetPlanet(planetName, Time.ToJulianDate(DateTime.UtcNow));
+            return GetPlanet(planetName, new AstroTime(DateTime.UtcNow));
         }
 
         public static Planet GetPlanet(Planets planetName, DateTime dateTime)
         {
-            return GetPlanet(planetName, Time.ToJulianDate(dateTime));
+            return GetPlanet(planetName, new AstroTime(dateTime));
         }
-        public static Planet GetPlanet(Planets planetName, double jd)
+        public static Planet GetPlanet(Planets planetName, AstroTime time)
         {
 
             //https://ssd.jpl.nasa.gov/planets/phys_par.html
@@ -57,33 +56,33 @@ namespace EphemSharp.Bodies
             {
                 //https://www.neoprogrammics.com/vsop87/source_code_generator_tool/
                 case Planets.Mercury:
-                    return BuildPlanet(planetName ,Mercury.XYZR, jd, MercuryRKM);
+                    return BuildPlanet(planetName, Mercury.XYZR, time, MercuryRKM);
                 case Planets.Venus:
-                    return BuildPlanet(planetName, Venus.XYZR, jd, VenusRKM);
+                    return BuildPlanet(planetName, Venus.XYZR, time, VenusRKM);
                 case Planets.Mars:
-                    return BuildPlanet(planetName, Mars.XYZR, jd, MarsRKM);
+                    return BuildPlanet(planetName, Mars.XYZR, time, MarsRKM);
                 case Planets.Jupiter:
-                    return BuildPlanet(planetName, Jupiter.XYZR, jd, JupiterRKM);
+                    return BuildPlanet(planetName, Jupiter.XYZR, time, JupiterRKM);
                 case Planets.Saturn:
-                    return BuildPlanet(planetName, Saturn.XYZR, jd, SaturnRKM);
+                    return BuildPlanet(planetName, Saturn.XYZR, time, SaturnRKM);
                 case Planets.Uranus:
-                    return BuildPlanet(planetName, Uranus.XYZR, jd, UranusRKM);
+                    return BuildPlanet(planetName, Uranus.XYZR, time, UranusRKM);
                 case Planets.Neptune:
-                    return BuildPlanet(planetName, Neptune.XYZR, jd, NeptuneRKM);
+                    return BuildPlanet(planetName, Neptune.XYZR, time, NeptuneRKM);
                 case Planets.Earth:
-                    return BuildPlanet(planetName, Earth.XYZR, jd, EarthRKM);
+                    return BuildPlanet(planetName, Earth.XYZR, time, EarthRKM);
                 case Planets.Sun:
-                    return BuildPlanet(planetName, Sun.XYZR, jd, SunRKM);
+                    return BuildPlanet(planetName, Sun.XYZR, time, SunRKM);
                 case Planets.Moon:
-                    return BuildPlanet(planetName, Moon.XYZR, jd, MoonRKM);
+                    return BuildPlanet(planetName, Moon.XYZR, time, MoonRKM);
             }
             return null;
         }
 
-        static Planet BuildPlanet(Planets name, XYZRHandler xyzr, double jd, double radius)
+        static Planet BuildPlanet(Planets name, XYZRHandler xyzr, AstroTime time, double radius)
         {
-            var exyzr = Earth.XYZR(jd); //earth coorditanates in space 
-            var pxyzr = xyzr(jd);
+            var exyzr = Earth.XYZR(time); //earth coorditanates in space 
+            var pxyzr = xyzr(time);
 
             //earth-planet coordinates
             Vector earthPlanetVector = pxyzr.xyz - exyzr.xyz;
@@ -139,6 +138,6 @@ namespace EphemSharp.Bodies
 
             return (ra, dec);
         }
-        delegate (Vector xyz, Distance r) XYZRHandler(double jd);
+        delegate (Vector xyz, Distance r) XYZRHandler(AstroTime time);
     }
 }

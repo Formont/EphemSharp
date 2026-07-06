@@ -66,12 +66,12 @@ namespace EphemSharp
             string[] setNames = { "Astronomical Dusk", "Nautical Dusk", "Civil Dusk", "Sunset" };
 
             DateTime currentUtc = startUtc;
-            double prevAlt = SunAltitude(obs, Utils.Time.ToJulianDate(currentUtc));
+            double prevAlt = SunAltitude(obs, new AstroTime(currentUtc));
 
             while (currentUtc <= endUtc)
             {
                 currentUtc = currentUtc.AddMinutes(1);
-                double alt = SunAltitude(obs, Utils.Time.ToJulianDate(currentUtc));
+                double alt = SunAltitude(obs, new AstroTime(currentUtc));
 
                 for (int i = 0; i < thresholds.Length; i++)
                 {
@@ -101,10 +101,10 @@ namespace EphemSharp
         /// <param name="obs">The observer with geographic coordinates.</param>
         /// <param name="jd">The Julian Date at which the calculation is performed.</param>
         /// <returns>The angular altitude of the Sun in degrees.</returns>
-        static double SunAltitude(Observer obs, double jd)
+        static double SunAltitude(Observer obs, AstroTime time)
         {
-            var sun = Planet.GetPlanet(Planets.Sun, jd);
-            var observed = obs.Observe(sun, jd);
+            var sun = Planet.GetPlanet(Planets.Sun, time);
+            var observed = obs.Observe(sun, time);
             return observed.Altitude.GetDegrees();
         }
     }
