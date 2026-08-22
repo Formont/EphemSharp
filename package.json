@@ -1,0 +1,9 @@
+{
+  "name": "com.formont.ephemsharp",
+  "version": "0.1.0",
+  "displayName": "EphemSharp",
+  "description": "C# astronomical library for calculating celestial positions and apparent properties.",
+  "author": {
+    "name": "Formont"
+  }
+}
