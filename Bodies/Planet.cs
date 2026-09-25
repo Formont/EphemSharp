@@ -9,7 +9,7 @@ namespace EphemSharp.Bodies
     {
         public Distance EarthDistance { get; private set; }
         public Distance SunDistance { get; private set; }
-        public Vector XYZ { get; private set; }
+        public Vector HeliocentricVector { get; private set; }
         public Angle AngularSize { get; private set; }
         public double Illumination { get; private set; }
         public double Magnitude { get; private set; }
@@ -23,7 +23,7 @@ namespace EphemSharp.Bodies
             AngularSize = size;
             Illumination = (1 + Math.Cos(ph.Radians)) / 2;
             Magnitude = mag;
-            XYZ = xyz;
+            HeliocentricVector = xyz;
         }
 
         public static Planet GetPlanet(Planets planetName)

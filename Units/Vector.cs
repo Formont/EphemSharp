@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EphemSharp.Units
 {
@@ -32,6 +28,28 @@ namespace EphemSharp.Units
         public static Vector operator -(Vector a, Vector b)
         {
             return new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        public static Vector operator *(Vector a, double scalar)
+        {
+            return new Vector(a.X * scalar, a.Y * scalar, a.Z * scalar);
+        }
+
+        public static Vector operator *(double scalar, Vector a)
+        {
+            return a * scalar;
+        }
+
+        public static double operator *(Vector a, Vector b)
+        {
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+        }
+
+        public static double AngleBetween(Vector a, Vector b)
+        {
+            double dotProduct = a * b;
+            double lengthsProduct = a.Length() * b.Length();
+            return Math.Acos(dotProduct / lengthsProduct);
         }
     }
 }

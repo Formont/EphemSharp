@@ -117,7 +117,7 @@ namespace EphemSharp
             if (l_sun < 0) l_sun += 2 * Math.PI;
 
             var moon = Bodies.Planet.GetPlanet(Planets.Moon, time);
-            Vector moonGeocentric = moon.XYZ - earthPos.xyz;
+            Vector moonGeocentric = moon.HeliocentricVector - earthPos.xyz;
             double l_moon = Math.Atan2(moonGeocentric.Y, moonGeocentric.X);
             if (l_moon < 0) l_moon += 2 * Math.PI;
 
