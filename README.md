@@ -98,4 +98,4 @@ Use this library **at your own risk**.
 - ELP2000-82B
 - [Skyfield (Python) — used as conceptual inspiration](https://rhodesmill.org/skyfield/)
 - IAU constellation boundaries
-- [jpl ephemerides] (https://ssd.jpl.nasa.gov/ftp/eph/)
+- [jpl ephemerides](https://ssd.jpl.nasa.gov/ftp/eph/)
