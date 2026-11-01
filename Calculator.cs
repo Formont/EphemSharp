@@ -1,8 +1,8 @@
 using EphemSharp.Enums;
 using EphemSharp.Units;
-using EphemSharp.Bodies;
 using System;
 using System.Collections.Generic;
+using EphemSharp.Data;
 
 
 namespace EphemSharp
@@ -103,7 +103,7 @@ namespace EphemSharp
         /// <returns>The angular altitude of the Sun in degrees.</returns>
         static double SunAltitude(Observer obs, AstroTime time)
         {
-            var sun = Planet.GetPlanet(Planets.Sun, time);
+            var sun = VSOP87.GetPlanet(Planets.Sun, time);
             var observed = obs.Observe(sun, time);
             return observed.Altitude.GetDegrees();
         }

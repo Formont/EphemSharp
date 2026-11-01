@@ -12,6 +12,7 @@ namespace EphemSharp.Enums
         Uranus,
         Neptune,
         Sun,
-        Moon
+        Moon,
+        Pluto
     }
 }

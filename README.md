@@ -51,19 +51,33 @@ Console.WriteLine(con); //Piscis Austrinus
 ```
 ### Getting a planet 
 ```C#
-var mars = Planet.GetPlanet(Planets.Mars);
+var mars = VSOP87.GetPlanet(Planets.Mars);
 Console.WriteLine(mars.RightAscension);
 Console.WriteLine(mars.Declination);
 Console.WriteLine(mars.Magnitude);
 Console.WriteLine(mars.AngularSize);
+```
+
+### Reading a satellite SPK kernel
+
+Satellite kernels such as `jup380s.bsp` can contain moon segments whose center is a
+planetary barycenter, without containing that barycenter's position relative to the
+Solar System. Link a DE kernel so `SpkKernel` can follow the complete target-to-center
+chain to the Solar System barycenter:
+
+```C#
+var kernel = new SpkKernel("jup380s.bsp", "de440s.bsp");
+var io = kernel.GetPlanet(501, new AstroTime(DateTime.UtcNow)); // NAIF ID 501
+// Or link after opening:
+// kernel.AddKernel("de440s.bsp");
 ```
 ### Angular distance 
 ```C#
 for (int i = 0; i <= 365.25 * 100; i++)
 {
     var newdate = DateTime.UtcNow.AddDays(i);
-    Planet ven = Planet.GetPlanet(Planets.Venus, newdate);
-    Planet mer = Planet.GetPlanet(Planets.Mercury, newdate);
+    Planet ven = VSOP87.GetPlanet(Planets.Venus, newdate);
+    Planet mer = VSOP87.GetPlanet(Planets.Mercury, newdate);
     var dst = Calculator.AngularDistance(ven, mer); 
     if ((double)dst <= 0.5)
     {
@@ -74,7 +88,7 @@ for (int i = 0; i <= 365.25 * 100; i++)
 ### Transtit, setting, rising
 ```C#
 var obs = new Observer(-33.92487, 18.42406); //Cape Town
-var jup = Planet.GetPlanet(Planets.Jupiter);
+var jup = VSOP87.GetPlanet(Planets.Jupiter);
 var transitTime = AstronomicalEvents.FindTransitTime(obs, jup, DateTime.Today, DateTime.Today.AddDays(1));
 DateTime? setTime = AstronomicalEvents.FindSetTime(obs, jup, DateTime.Today, DateTime.Today.AddDays(1));
 DateTime? riseTime = AstronomicalEvents.FindRiseTime(obs, jup, DateTime.Today, DateTime.Today.AddDays(1));

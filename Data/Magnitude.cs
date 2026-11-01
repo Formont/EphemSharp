@@ -1,4 +1,5 @@
 using EphemSharp.Enums;
+using EphemSharp.Bodies;
 using System;
 using static System.Math;
 
@@ -6,6 +7,39 @@ namespace EphemSharp.Data
 {
     public static class MagnitudeCounter
     {
+        /// <summary>
+        /// Estimates apparent magnitude with a linear phase law:
+        /// m = H + 5 log10(r * delta) + phaseCoefficient * phaseAngle.
+        /// Distances are in AU, phase angle is in degrees, and phaseCoefficient is
+        /// in magnitudes per degree. This is a general approximation; use the
+        /// body-specific models below when they are available.
+        /// </summary>
+        public static double CountMagnitude(double absoluteMagnitude, double sunDistanceAu,
+            double observerDistanceAu, double phaseAngleDegrees = 0.0, double phaseCoefficient = 0.0)
+        {
+            if (double.IsNaN(absoluteMagnitude) || double.IsInfinity(absoluteMagnitude))
+                throw new ArgumentOutOfRangeException("absoluteMagnitude", "Absolute magnitude must be a finite value.");
+            if (double.IsNaN(sunDistanceAu) || double.IsInfinity(sunDistanceAu) || sunDistanceAu <= 0)
+                throw new ArgumentOutOfRangeException("sunDistanceAu", "Sun distance must be a finite positive value in AU.");
+            if (double.IsNaN(observerDistanceAu) || double.IsInfinity(observerDistanceAu) || observerDistanceAu <= 0)
+                throw new ArgumentOutOfRangeException("observerDistanceAu", "Observer distance must be a finite positive value in AU.");
+            if (double.IsNaN(phaseAngleDegrees) || double.IsInfinity(phaseAngleDegrees) || phaseAngleDegrees < 0 || phaseAngleDegrees > 180)
+                throw new ArgumentOutOfRangeException("phaseAngleDegrees", "Phase angle must be between 0 and 180 degrees.");
+            if (double.IsNaN(phaseCoefficient) || double.IsInfinity(phaseCoefficient))
+                throw new ArgumentOutOfRangeException("phaseCoefficient", "Phase coefficient must be a finite value in magnitudes per degree.");
+
+            return absoluteMagnitude + 5.0 * Log10(sunDistanceAu * observerDistanceAu)
+                + phaseCoefficient * phaseAngleDegrees;
+        }
+
+        public static double CountMagnitude(double absoluteMagnitude, Planet planet)
+        {
+            return CountMagnitude(absoluteMagnitude, 
+                planet.SunDistance.AU,
+                planet.EarthDistance.AU,
+                (double)planet.PhaseAngle);
+        }
+
         public static double GetMagnitude(Planets planet, double r, double delta, double phaseAngle, double ra = 0, double dec = 0)
         {
             switch (planet)
@@ -20,9 +54,11 @@ namespace EphemSharp.Data
                 case Planets.Neptune: return NeptuneMagnitude(r, delta, phaseAngle);   
                 case Planets.Moon: return MoonMagnitude(r, delta, phaseAngle);
                 case Planets.Sun: return SunMagnitude(delta);
-                default: return 99.99;
+                case Planets.Pluto: return CountMagnitude(-0.7, r, delta, phaseAngle);
+                default: return 99.9;
             }
         }
+
 
         private static double MercuryMagnitude(double r, double delta, double phaseAngle)
         {

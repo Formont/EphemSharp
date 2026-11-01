@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EphemSharp.Bodies
+namespace EphemSharp.Data.vsop87
 {
-    public class Mars
+    internal class Mars
     {
-
-        public static (Vector xyz, Distance r) XYZR(AstroTime time)
+        internal static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
             double t = time.JulianCenturiesTDB / 10.0;
 

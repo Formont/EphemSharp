@@ -14,6 +14,17 @@ namespace EphemSharp.Units
             Z = z;
         }
 
+        public Vector(double x, double y) : this(x, y, 0) { }
+        public Vector(double x) : this(x, 0, 0) { } 
+        public Vector() : this(0, 0, 0) { }
+
+        public Vector((double x1, double y1, double z1) start, (double x2, double y2, double z2) end)
+        {
+            X = end.x2 - start.x1;
+            Y = end.y2 - start.y1;
+            Z = end.z2 - start.z1;
+        }
+
         public double Length()
         {
             return Math.Sqrt(X * X + Y * Y + Z * Z);
@@ -50,6 +61,11 @@ namespace EphemSharp.Units
             double dotProduct = a * b;
             double lengthsProduct = a.Length() * b.Length();
             return Math.Acos(dotProduct / lengthsProduct);
+        }
+
+        public override string ToString()
+        {
+            return $"({X}, {Y}, {Z})";
         }
     }
 }

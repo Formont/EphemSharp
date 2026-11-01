@@ -2,11 +2,11 @@
 using System;
 
 
-namespace EphemSharp.Data
+namespace EphemSharp.Data.vsop87
 {
-    public class Uranus
+    internal class Uranus
     {
-        public static (Vector xyz, Distance r) XYZR(AstroTime time)
+        internal static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
             double t = time.JulianCenturiesTDB / 10.0;
 

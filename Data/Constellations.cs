@@ -139,9 +139,18 @@ namespace EphemSharp.Data
         /// <returns>
         /// A dictionary where the key is the constellation abbreviation (e.g., "UMA") and the value is a list of (RA, Dec) coordinate pairs forming its boundary.
         /// </returns>
-        public static Dictionary<string, List<(double, double)>> LoadConstellationMap(string filepath = "bound_20.dat")
+        public static Dictionary<string, List<(double, double)>> LoadConstellationMap(string filepath = null)
         {
             Dictionary<string, List<(double, double)>> borders = new Dictionary<string, List<(double, double)>>();
+
+            if (string.IsNullOrWhiteSpace(filepath))
+            {
+                string outputFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bound_20.dat");
+                string projectFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "files", "bound_20.dat");
+                string workingDirectoryFile = Path.Combine(Directory.GetCurrentDirectory(), "files", "bound_20.dat");
+                filepath = File.Exists(outputFile) ? outputFile :
+                    (File.Exists(projectFile) ? projectFile : workingDirectoryFile);
+            }
 
             using (StreamReader sr = new StreamReader(filepath))
             {
@@ -180,6 +189,8 @@ namespace EphemSharp.Data
         /// </returns>
         public static string FindConstellation(CelestialBody body, Dictionary<string, List<(double, double)>> constellations)
         {
+            if (body == null) throw new ArgumentNullException("body");
+            if (constellations == null) throw new ArgumentNullException("constellations");
             double ra = body.RightAscension.GetHours();
             double dec = body.Declination.GetDegrees();
             string result = "";
@@ -191,42 +202,38 @@ namespace EphemSharp.Data
                 int intersects = 0;
                 bool onBoundary = false;
                 int n = coords.Count;
+                if (n < 3) continue;
 
                 for (int i = 0; i < n; i++)
                 {
-                    var l = coords[(i - 1 + n) % n]; // wrap around
-                    var r = coords[i];
+                    var left = coords[(i - 1 + n) % n];
+                    var right = coords[i];
+                    double x1 = NormalizeHours(left.Item1 - ra);
+                    double x2 = x1 + NormalizeHours(right.Item1 - left.Item1);
+                    // Move this edge to the copy of the 24-hour RA circle nearest RA=0.
+                    double shift = 24.0 * Math.Round((x1 + x2) / 48.0);
+                    x1 -= shift;
+                    x2 -= shift;
+                    double y1 = left.Item2;
+                    double y2 = right.Item2;
 
-                    double l_ra = l.Item1, l_dec = l.Item2;
-                    double r_ra = r.Item1, r_dec = r.Item2;
-
-                    // Swap if needed
-                    if (r_ra < l_ra)
+                    if (Math.Abs(x1) < 1e-12 && Math.Abs(x2) < 1e-12)
                     {
-                        (l_ra, r_ra) = (r_ra, l_ra);
-                        (l_dec, r_dec) = (r_dec, l_dec);
+                        if (dec >= Math.Min(y1, y2) && dec <= Math.Max(y1, y2)) onBoundary = true;
+                        continue;
                     }
 
-                    bool isCrossing = (r_ra - l_ra) > 5;
-
-                    if (!isCrossing)
+                    if ((x1 <= 0 && x2 >= 0) || (x2 <= 0 && x1 >= 0))
                     {
-                        if (ra < l_ra || ra >= r_ra)
-                            continue;
-                    }
-                    else
-                    {
-                        if (l_ra <= ra && ra < r_ra)
-                            continue;
+                        double yAtRa = y1 + (y2 - y1) * (-x1) / (x2 - x1);
+                        if (Math.Abs(yAtRa - dec) < 1e-9) onBoundary = true;
                     }
 
-                    if (dec <= l_dec && dec <= r_dec)
+                    // Cast a ray toward increasing declination from the query point.
+                    if ((x1 > 0) != (x2 > 0))
                     {
-                        intersects++;
-                    }
-                    else if ((l_dec < dec && dec <= r_dec) || (r_dec < dec && dec <= l_dec))
-                    {
-                        onBoundary = true;
+                        double yAtRa = y1 + (y2 - y1) * (-x1) / (x2 - x1);
+                        if (yAtRa > dec) intersects++;
                     }
                 }
 
@@ -252,6 +259,14 @@ namespace EphemSharp.Data
             }
 
             return GetFullName(result);
+        }
+
+        private static double NormalizeHours(double hours)
+        {
+            hours %= 24.0;
+            if (hours <= -12.0) hours += 24.0;
+            else if (hours > 12.0) hours -= 24.0;
+            return hours;
         }
     }
 }

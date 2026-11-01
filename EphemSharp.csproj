@@ -46,34 +46,47 @@
     <Compile Include="AstroTime.cs" />
     <Compile Include="Bodies\Planet.cs" />
     <Compile Include="Calculator.cs" />
-    <Compile Include="Data\Earth.cs" />
-    <Compile Include="Data\Jupiter.cs" />
+    <Compile Include="Data\ELP2000_82B.cs" />
+    <Compile Include="Data\Meeus.cs" />
+    <Compile Include="Data\Meeus\Pluto.cs" />
+    <Compile Include="Data\VSOP87.cs" />
+    <Compile Include="Data\vsop87\Earth.cs" />
+    <Compile Include="Data\vsop87\Jupiter.cs" />
     <Compile Include="Data\Magnitude.cs" />
-    <Compile Include="Data\Mars.cs" />
-    <Compile Include="Data\Moon.cs" />
-    <Compile Include="Data\MoonData.cs" />
+    <Compile Include="Data\vsop87\Mars.cs" />
+    <Compile Include="Data\elp2000-82b\Moon.cs" />
+    <Compile Include="Data\elp2000-82b\MoonData.cs" />
     <Compile Include="Bodies\Star.cs" />
     <Compile Include="Data\Catalogs.cs" />
     <Compile Include="Data\Constellations.cs" />
-    <Compile Include="Data\Mercury.cs" />
-    <Compile Include="Data\Neptune.cs" />
-    <Compile Include="Data\Saturn.cs" />
+    <Compile Include="Data\vsop87\Mercury.cs" />
+    <Compile Include="Data\vsop87\Neptune.cs" />
+    <Compile Include="Data\vsop87\Saturn.cs" />
     <Compile Include="Data\Stellarium.cs" />
-    <Compile Include="Data\Sun.cs" />
-    <Compile Include="Data\Uranus.cs" />
-    <Compile Include="Data\Venus.cs" />
+    <Compile Include="Data\vsop87\Sun.cs" />
+    <Compile Include="Data\vsop87\Uranus.cs" />
+    <Compile Include="Data\vsop87\Venus.cs" />
     <Compile Include="Enums\MoonPhase.cs" />
     <Compile Include="Enums\Planets.cs" />
+    <Compile Include="Extensions\DoubleExtension.cs" />
     <Compile Include="Loader.cs" />
+    <Compile Include="MathUtils.cs" />
     <Compile Include="ObservedObject.cs" />
     <Compile Include="Units\Angle.cs" />
     <Compile Include="Bodies\CelestialBody.cs" />
     <Compile Include="Enums\AngleType.cs" />
     <Compile Include="Observer.cs" />
+    <Compile Include="SpkKernel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Units\Distance.cs" />
     <Compile Include="Units\Vector.cs" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Content Include="files\bound_20.dat">
+      <Link>bound_20.dat</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

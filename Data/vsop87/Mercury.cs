@@ -1,11 +1,11 @@
 ﻿using EphemSharp.Units;
 using System;
 
-namespace EphemSharp.Data
+namespace EphemSharp.Data.vsop87
 {
-    public class Mercury
+    internal class Mercury
     {
-        public static (Vector xyz, Distance r) XYZR(AstroTime time)
+        internal static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
             double t = time.JulianCenturiesTDB / 10.0;
 

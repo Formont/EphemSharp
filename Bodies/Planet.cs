@@ -2,84 +2,35 @@ using EphemSharp.Units;
 using EphemSharp.Enums;
 using System;
 using EphemSharp.Data;
+using EphemSharp.Data.vsop87;
 
 namespace EphemSharp.Bodies
 {
     public class Planet : CelestialBody
     {
+        internal Func<AstroTime, Planet> EphemerisProvider { get; set; }
         public Distance EarthDistance { get; private set; }
         public Distance SunDistance { get; private set; }
         public Vector HeliocentricVector { get; private set; }
         public Angle AngularSize { get; private set; }
+        public Angle PhaseAngle { get; private set; }
         public double Illumination { get; private set; }
         public double Magnitude { get; private set; }
 
-        Planet(Distance ed, Distance sd, Angle ra, Angle dec, Angle size, Angle ph, double mag, Vector xyz)
+        internal Planet(Distance ed, Distance sd, Angle ra, Angle dec, Angle size, Angle ph, double mag, Vector xyz)
         {
             EarthDistance = ed;
             SunDistance = sd;
             RightAscension = ra;
             Declination = dec;
             AngularSize = size;
+            PhaseAngle = ph;
             Illumination = (1 + Math.Cos(ph.Radians)) / 2;
             Magnitude = mag;
             HeliocentricVector = xyz;
         }
 
-        public static Planet GetPlanet(Planets planetName)
-        {
-            return GetPlanet(planetName, new AstroTime(DateTime.UtcNow));
-        }
-
-        public static Planet GetPlanet(Planets planetName, DateTime dateTime)
-        {
-            return GetPlanet(planetName, new AstroTime(dateTime));
-        }
-        public static Planet GetPlanet(Planets planetName, AstroTime time)
-        {
-
-            //https://ssd.jpl.nasa.gov/planets/phys_par.html
-
-            //radiuses in km
-            double SunRKM = 695700.0;
-            double MercuryRKM = 2440.53;
-            double VenusRKM = 6051.8;
-            double MarsRKM = 3396.19;
-            double JupiterRKM = 71492.0;
-            double SaturnRKM = 60268.0;
-            double UranusRKM = 25559.0;
-            double NeptuneRKM = 24764.0;
-            double EarthRKM = 6378.1366;
-            double MoonRKM = 1737.4;
-
-            switch (planetName)
-            {
-                //https://www.neoprogrammics.com/vsop87/source_code_generator_tool/
-                case Planets.Mercury:
-                    return BuildPlanet(planetName, Mercury.XYZR, time, MercuryRKM);
-                case Planets.Venus:
-                    return BuildPlanet(planetName, Venus.XYZR, time, VenusRKM);
-                case Planets.Mars:
-                    return BuildPlanet(planetName, Mars.XYZR, time, MarsRKM);
-                case Planets.Jupiter:
-                    return BuildPlanet(planetName, Jupiter.XYZR, time, JupiterRKM);
-                case Planets.Saturn:
-                    return BuildPlanet(planetName, Saturn.XYZR, time, SaturnRKM);
-                case Planets.Uranus:
-                    return BuildPlanet(planetName, Uranus.XYZR, time, UranusRKM);
-                case Planets.Neptune:
-                    return BuildPlanet(planetName, Neptune.XYZR, time, NeptuneRKM);
-                case Planets.Earth:
-                    return BuildPlanet(planetName, Earth.XYZR, time, EarthRKM);
-                case Planets.Sun:
-                    return BuildPlanet(planetName, Sun.XYZR, time, SunRKM);
-                case Planets.Moon:
-                    return BuildPlanet(planetName, Moon.XYZR, time, MoonRKM);
-            }
-            return null;
-        }
-
-        static Planet BuildPlanet(Planets name, XYZRHandler xyzr, AstroTime time, double radius)
+        internal static Planet BuildPlanet(Planets name, XYZRHandler xyzr, AstroTime time, double radius)
         {
             var exyzr = Earth.XYZR(time); //earth coorditanates in space 
             var pxyzr = xyzr(time);
@@ -92,11 +43,11 @@ namespace EphemSharp.Bodies
             Distance R = exyzr.r;      // Sun-Earth distance
 
 
-            var (ra, dec) = ToRaDec(earthPlanetVector.X, earthPlanetVector.Y, earthPlanetVector.Z);
+            var (ra, dec) = MathUtils.ToRaDec(earthPlanetVector.X, earthPlanetVector.Y, earthPlanetVector.Z);
 
             Distance earthD = new Distance(au: delta);
 
-            Angle ph = CountPhaseAngle(r.AU, delta, R.AU);
+            Angle ph = MathUtils.CountPhaseAngle(r.AU, delta, R.AU);
 
             double mag = MagnitudeCounter.GetMagnitude(name, r.AU, delta, ph.GetDegrees(), ra, dec);
 
@@ -107,37 +58,19 @@ namespace EphemSharp.Bodies
                 pxyzr.xyz); //xyz about the earth
 
 
+            planet.EphemerisProvider = delegate(AstroTime requestedTime)
+            {
+                return BuildPlanet(name, xyzr, requestedTime, radius);
+            };
             return planet;
 
         }
-        static Angle CountPhaseAngle(double r, double delta, double R)
+
+        internal Planet AtTime(AstroTime time)
         {
-            double cosAlpha = (r * r + delta * delta - R * R) / (2 * r * delta);
-            cosAlpha = Math.Max(-1.0, Math.Min(1.0, cosAlpha));
-
-            double alphaRad = Math.Acos(cosAlpha);
-            Angle phase = new Angle(AngleType.Degrees, alphaRad);
-
-            return phase;
+            return EphemerisProvider == null ? this : EphemerisProvider(time);
         }
 
-        static (double ra, double dec) ToRaDec(double x, double y, double z)
-        {
-            double epsilon = 23.43928 * Math.PI / 180.0;
-
-            double x_eq = x;
-            double y_eq = y * Math.Cos(epsilon) - z * Math.Sin(epsilon);
-            double z_eq = y * Math.Sin(epsilon) + z * Math.Cos(epsilon);
-
-            double r = Math.Sqrt(x_eq * x_eq + y_eq * y_eq + z_eq * z_eq);
-            double ra = Math.Atan2(y_eq, x_eq);
-            if (ra < 0)
-                ra += 2 * Math.PI;
-
-            double dec = Math.Asin(z_eq / r);
-
-            return (ra, dec);
-        }
-        delegate (Vector xyz, Distance r) XYZRHandler(AstroTime time);
+        internal delegate (Vector xyz, Distance r) XYZRHandler(AstroTime time);
     }
 }

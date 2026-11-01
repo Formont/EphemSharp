@@ -7,6 +7,7 @@ namespace EphemSharp.Bodies
 {
     public class Star : CelestialBody
     {
+        private const double AuPerParsec = 206264.80624709636;
         private double parallaxMas;
         public double Magnitude { get; set; }
         public Distance Distance { get; private set; }
@@ -23,8 +24,10 @@ namespace EphemSharp.Bodies
                 else
                 {
                     double radians = (parallaxMas / 1000.0) / 3600.0 * Math.PI / 180.0;
-                    double D = 1.0 / Math.Tan(radians);
-                    Distance = new Distance(D);
+                    // 1 / tan(parallax) is in parsecs when parallax is in arcseconds.
+                    // Distance stores AU, so convert parsecs to AU.
+                    double distanceParsecs = 1.0 / Math.Tan(radians);
+                    Distance = new Distance(au: distanceParsecs * AuPerParsec);
                 }
             }
         }

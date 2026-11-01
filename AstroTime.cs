@@ -69,6 +69,9 @@ namespace EphemSharp
         // TDB ~ TT in most practical applications (difference is < 2ms)
         public double TDB_JD => TT_JD;
 
+        /// <summary>Seconds from J2000.0 in the TDB time scale, as used by SPK kernels.</summary>
+        public double EphemerisTime => (TDB_JD - 2451545.0) * 86400.0;
+
         // Julian Centuries
         public double JulianCenturiesTT => (TT_JD - 2451545.0) / 36525.0;
         public double JulianCenturiesTDB => (TDB_JD - 2451545.0) / 36525.0;
@@ -186,5 +189,6 @@ namespace EphemSharp
 
             return jd;
         }
+
     }
 }

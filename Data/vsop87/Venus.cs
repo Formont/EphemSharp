@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EphemSharp.Data
+namespace EphemSharp.Data.vsop87
 {
-    public class Venus
+    internal class Venus
     {
 
         public static (Vector xyz, Distance r) XYZR(AstroTime time)

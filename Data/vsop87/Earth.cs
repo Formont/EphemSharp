@@ -1,10 +1,10 @@
 ﻿using System;
 using EphemSharp.Units;
-namespace EphemSharp.Bodies
+namespace EphemSharp.Data.vsop87
 {
-    public static class Earth
+    internal static class Earth
     {
-        public static (Vector xyz, Distance r) XYZR(AstroTime time)
+        internal static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
             double t = time.JulianCenturiesTDB / 10.0;
 

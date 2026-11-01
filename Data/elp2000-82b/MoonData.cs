@@ -1,6 +1,6 @@
 using System;
 
-namespace EphemSharp.Data
+namespace EphemSharp.Data.elp2000_82b
 {
     public static class MoonData
     {

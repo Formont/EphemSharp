@@ -1,11 +1,11 @@
 using EphemSharp.Units;
 using System;
-using EphemSharp.Bodies;
+using EphemSharp.Data.vsop87;
 
 //ELP2000-82B
-namespace EphemSharp.Data
+namespace EphemSharp.Data.elp2000_82b
 {
-    public static class Moon
+    internal static class Moon
     {
         private struct Delaunay
         {
@@ -54,7 +54,7 @@ namespace EphemSharp.Data
         private static readonly double o_const = 0.02292188611773368;
         private static readonly double r_const = 0.074801329518;
 
-        public static (Vector xyz, Distance r) XYZR(AstroTime time)
+        internal static (Vector xyz, Distance r) XYZR(AstroTime time)
         {
             // Geocentric rotated coordinates in kilometers
             Vector geoKM = CartesianJ2000Rotated(time);
